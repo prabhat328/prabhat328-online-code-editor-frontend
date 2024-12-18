@@ -10,15 +10,7 @@ const languageExtensions = {
   javascript: "js",
   java: "java",
   cpp: "cpp",
-  c: "c",
-  html: "html",
-  css: "css",
-  typescript: "ts",
-  json: "json",
-  php: "php",
-  ruby: "rb",
-  go: "go",
-  rust: "rs",
+  c: "c"
 };
 
 function EditorPage() {
@@ -99,14 +91,18 @@ function EditorPage() {
         input: userInput,
         language: userLang,
       });
+
+      console.log("Response from backend:", response.data); // Log the full response
       setUserOutput(response.data.output || "No output received");
       toast.success("Code executed successfully!");
     } catch (err) {
+      console.error("Error executing code:", err.response?.data || err.message); // Log the error
       toast.error("Error: Failed to execute code.");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleLogout = async () => {
     try {
@@ -153,17 +149,13 @@ function EditorPage() {
       {/* Sidebar */}
       <div className="aside">
         <div className="asideInner">
-          <div className="logo">
-            <img src="/logo.png" alt="Logo..." height={30} width={120} />
-          </div>
-          <hr />
-          <h3>History</h3>
-          {loadingHistory ? (
-            <p>Loading...</p>
-          ) : isLoggedIn ? (
-            <div>
-              {history.length > 0 ? (
-                <ul className="historyList">
+          <div className="historyList">
+            <h3>History</h3>
+            {loadingHistory ? (
+              <p>Loading...</p>
+            ) : isLoggedIn ? (
+              history.length > 0 ? (
+                <ul>
                   {history.map((code) => (
                     <li key={code._id} onClick={() => fetchCode(code._id)} className="historyItem">
                       {code.name}
@@ -172,19 +164,24 @@ function EditorPage() {
                 </ul>
               ) : (
                 <p>No saved codes found.</p>
-              )}
+              )
+            ) : (
+              <p>Login to see history</p>
+            )}
+          </div>
+
+          {/* Button Container */}
+          <div className="button-container">
+            {isLoggedIn ? (
               <button onClick={handleLogout} className="btn logoutBtn">
                 Logout
               </button>
-            </div>
-          ) : (
-            <div>
-              <p>Login to see history</p>
+            ) : (
               <a href="/">
                 <button className="btn loginBtn">Login</button>
               </a>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -230,13 +227,15 @@ function EditorPage() {
             <h4>Input:</h4>
             <textarea value={userInput} onChange={(e) => setUserInput(e.target.value)}></textarea>
             <h4>Output:</h4>
-            {loading ? (
-              <div className="spinner-box">
-                <img src={spinner} alt="Loading output..." />
-              </div>
-            ) : (
-              <pre>{userOutput}</pre>
-            )}
+            <div className="output-box">
+              {loading ? (
+                <div className="spinner-box">
+                  <img src={spinner} alt="Loading output..." />
+                </div>
+              ) : (
+                <pre>{userOutput}</pre>
+              )}
+            </div>
             <button onClick={clearOutput} className="clear-btn">
               Clear Output
             </button>
